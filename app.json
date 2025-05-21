@@ -32,3 +32,9 @@
     }
   ]
 }
+/*
+  This app.json file defines metadata and deployment settings for the vulnerable "Goof" Node.js application.
+  It specifies the required environment variable (MONGOLAB_URI), buildpacks, dependencies (like MongoLab),
+  and app characteristics for deployment on Heroku.
+  Used primarily for DevSecOps security testing and educational purposes via Snyk.
+*/
