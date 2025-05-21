@@ -7,7 +7,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: snyk/actions/setup@master
       - name: Snyk Test
-        run: npm audit
+        run: snyk help
         continue-on-error: true
         env:
            SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
