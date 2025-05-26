@@ -5,8 +5,7 @@ pipeline {
         // PATH is usually handled by Windows, so can be omitted or adjusted if needed
         RECIPIENTS = 'vanshikakaul10@gmail.com'  // Replace with your friend's email address
     }
- 
- 
+  
     stages {
         stage('Checkout') {
             steps {
