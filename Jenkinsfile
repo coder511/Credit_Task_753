@@ -10,40 +10,38 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh 'npm install'
+                bat 'npm install'
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh 'npm test || true' // Allows pipeline to continue despite test failures
+                bat 'cmd /c "npm test || exit /b 0"' // Allows continuation on failure
             }
         }
 
         stage('Generate Coverage Report') {
             steps {
-                sh 'npm run coverage || true'
+                bat 'cmd /c "npm run coverage || exit /b 0"'
             }
         }
 
         stage('NPM Audit (Security Scan)') {
             steps {
-                sh 'npm audit || true'
+                bat 'cmd /c "npm audit || exit /b 0"'
             }
         }
 
         stage('SonarCloud Analysis') {
             steps {
                 withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
-                    sh '''
-                        # Download and extract SonarScanner CLI
-                        wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
-                        unzip -o sonar-scanner-cli-5.0.1.3006-linux.zip
-                        export PATH=$PATH:$(pwd)/sonar-scanner-5.0.1.3006-linux/bin
+                    bat '''
+                        curl -LO https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-windows.zip
+                        powershell -Command "Expand-Archive -Force sonar-scanner-cli-5.0.1.3006-windows.zip ."
+                        set PATH=%PATH%;%CD%\\sonar-scanner-5.0.1.3006-windows\\bin
 
-                        # Run analysis
-                        sonar-scanner \
-                            -Dsonar.login=$SONAR_TOKEN
+                        sonar-scanner ^
+                          -Dsonar.login=%SONAR_TOKEN%
                     '''
                 }
             }
