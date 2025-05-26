@@ -1,48 +1,53 @@
 pipeline {
     agent any
-
+ 
+    environment {
+        // PATH is usually handled by Windows, so can be omitted or adjusted if needed
+        RECIPIENTS = 'vanshikakaul10@gmail.com'  // Replace with your friend's email address
+    }
+  
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/coder511/Credit_Task_753.git'
+                git branch: 'main', url: 'https://github.com/coder511/8.1-DevSecOps.git'
             }
         }
-
+        
         stage('Install Dependencies') {
             steps {
                 bat 'npm install'
             }
         }
-
         stage('Run Tests') {
-            steps { 
-                bat 'cmd /c "npm test || exit /b 0"' // Allows continuation on failure
+            steps {
+                bat 'npm test || exit /b 0'
+            }
+            post {
+                always {
+                    emailext attachLog: true,
+                             subject: "Test Stage - Build ${currentBuild.fullDisplayName} - Status: ${currentBuild.currentResult}",
+                             body: """The Test stage has completed with status: ${currentBuild.currentResult}.
+Please check the attached console log for details.""",
+                             to: "${RECIPIENTS}"
+                }
             }
         }
-
         stage('Generate Coverage Report') {
             steps {
-                bat 'cmd /c "npm run coverage || exit /b 0"'
+                bat 'npm run coverage || exit /b 0'
             }
         }
-
         stage('NPM Audit (Security Scan)') {
             steps {
-                bat 'cmd /c "npm audit || exit /b 0"'
+                bat 'npm audit || exit /b 0'
             }
-        }
-
-        stage('SonarCloud Analysis') {
-            steps {
-                withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
-                    bat '''
-                        curl -LO https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-windows.zip
-                        powershell -Command "Expand-Archive -Force sonar-scanner-cli-5.0.1.3006-windows.zip ."
-                        set PATH=%PATH%;%CD%\\sonar-scanner-5.0.1.3006-windows\\bin
-
-                        sonar-scanner ^
-                          -Dsonar.login=%SONAR_TOKEN%
-                    '''
+            post {
+                always {
+                    emailext attachLog: true,
+                             subject: "NPM Audit Stage - Build ${currentBuild.fullDisplayName} - Status: ${currentBuild.currentResult}",
+                             body: """The NPM Audit stage has completed with status: ${currentBuild.currentResult}.
+Please check the attached console log for details.""",
+                             to: "${RECIPIENTS}"
                 }
             }
         }
