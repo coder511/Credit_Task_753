@@ -1,53 +1,50 @@
 pipeline {
     agent any
- 
-    environment {
-        // PATH is usually handled by Windows, so can be omitted or adjusted if needed
-        RECIPIENTS = 'vanshikakaul10@gmail.com'  // Replace with your friend's email address
-    }
-  
+
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/coder511/8.1-DevSecOps.git'
+                git branch: 'main', url: 'https://github.com/coder511/Credit_Task_753.git'
             }
         }
-        
+
         stage('Install Dependencies') {
             steps {
-                bat 'npm install'
+                sh 'npm install'
             }
         }
+
         stage('Run Tests') {
             steps {
-                bat 'npm test || exit /b 0'
-            }
-            post {
-                always {
-                    emailext attachLog: true,
-                             subject: "Test Stage - Build ${currentBuild.fullDisplayName} - Status: ${currentBuild.currentResult}",
-                             body: """The Test stage has completed with status: ${currentBuild.currentResult}.
-Please check the attached console log for details.""",
-                             to: "${RECIPIENTS}"
-                }
+                sh 'npm test || true' // Allows pipeline to continue despite test failures
             }
         }
+
         stage('Generate Coverage Report') {
             steps {
-                bat 'npm run coverage || exit /b 0'
+                sh 'npm run coverage || true'
             }
         }
+
         stage('NPM Audit (Security Scan)') {
             steps {
-                bat 'npm audit || exit /b 0'
+                sh 'npm audit || true'
             }
-            post {
-                always {
-                    emailext attachLog: true,
-                             subject: "NPM Audit Stage - Build ${currentBuild.fullDisplayName} - Status: ${currentBuild.currentResult}",
-                             body: """The NPM Audit stage has completed with status: ${currentBuild.currentResult}.
-Please check the attached console log for details.""",
-                             to: "${RECIPIENTS}"
+        }
+
+        stage('SonarCloud Analysis') {
+            steps {
+                withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
+                    sh '''
+                        # Download and extract SonarScanner CLI
+                        wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+                        unzip -o sonar-scanner-cli-5.0.1.3006-linux.zip
+                        export PATH=$PATH:$(pwd)/sonar-scanner-5.0.1.3006-linux/bin
+
+                        # Run analysis
+                        sonar-scanner \
+                            -Dsonar.login=$SONAR_TOKEN
+                    '''
                 }
             }
         }
