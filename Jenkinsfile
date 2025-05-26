@@ -15,7 +15,7 @@ pipeline {
         }
 
         stage('Run Tests') {
-            steps {
+            steps { 
                 bat 'cmd /c "npm test || exit /b 0"' // Allows continuation on failure
             }
         }
