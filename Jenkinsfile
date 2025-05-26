@@ -2,7 +2,6 @@ pipeline {
     agent any
  
     environment {
-        PATH:"/usr/local/bin:${env.PATH}"
         RECIPIENTS = 'vanshikakaul10@gmail.com'  
     }
   
