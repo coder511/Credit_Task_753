@@ -2,8 +2,8 @@ pipeline {
     agent any
  
     environment {
-        // PATH is usually handled by Windows, so can be omitted or adjusted if needed
-        RECIPIENTS = 'vanshikakaul10@gmail.com'  // Replace with your friend's email address
+        PATH:"/usr/local/bin:${env.PATH}"
+        RECIPIENTS = 'vanshikakaul10@gmail.com'  
     }
   
     stages {
@@ -37,7 +37,7 @@ Please check the attached console log for details.""",
             steps {
                 bat 'npm run coverage || exit /b 0'
             }
-            
+
         }
         stage('NPM Audit (Security Scan)') {
             steps {
