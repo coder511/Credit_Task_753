@@ -16,7 +16,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 bat 'npm install'
-                
+
             }
         }
         stage('Run Tests') {
@@ -37,6 +37,7 @@ Please check the attached console log for details.""",
             steps {
                 bat 'npm run coverage || exit /b 0'
             }
+            
         }
         stage('NPM Audit (Security Scan)') {
             steps {
